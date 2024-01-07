@@ -19,6 +19,7 @@ return new class extends Migration
 
             $table->text('for_search')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -16,9 +16,11 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained();
             $table->text('name');
             $table->text('desc')->nullable();
+            $table->decimal('price', 11, 2)->nullable();
 
             $table->text('for_search')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

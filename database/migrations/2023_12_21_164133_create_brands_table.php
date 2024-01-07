@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->text('name');
             $table->text('desc')->nullable();
+            $table->string('logo')->nullable();
 
             $table->text('for_search')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
