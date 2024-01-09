@@ -32,5 +32,10 @@ Route::group(['middleware' => 'admin_auth'], function () {
         Route::post('upload', [\App\Http\Controllers\FileController::class, 'upload'])->name('files.upload');
     });
 
-
+    Route::group(['prefix' => 'filepond'], function () {
+        Route::post('process', [\App\Http\Controllers\FilePondController::class, 'process']);
+        Route::delete('revert', [\App\Http\Controllers\FilePondController::class, 'revert']);
+        Route::get('load', [\App\Http\Controllers\FilePondController::class, 'load']);
+        Route::post('remove', [\App\Http\Controllers\FilePondController::class, 'remove']);
+    });
 });

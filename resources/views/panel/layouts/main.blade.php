@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="A fully featured admin theme which can be used to build CRM, CMS, etc." />
 
     <!-- Favicon -->
     <link rel="shortcut icon" href="/assets/favicon/favicon.ico" type="image/x-icon"/>
@@ -94,6 +94,8 @@
             min-height: 22px;
         }
     </style>
+
+    @include('panel.components.filepond.styles')
 
     <!-- Title -->
     <title>{{env('APP_NAME')}} | @yield('title')</title>
@@ -2208,10 +2210,16 @@
 <!-- Dropzone JS -->
 <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
 
+<!-- Loader -->
 <script>
     let loader = document.getElementById('loader');
     loader.style.display = 'none';
 </script>
+
+<!-- Load Axios library -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+@include('panel.components.filepond.scripts')
 
 <script>
     // Create an instance of Notyf
