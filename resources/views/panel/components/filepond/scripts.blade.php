@@ -14,13 +14,11 @@
         FilePondPluginFileValidateSize,
         FilePondPluginFilePoster
     );
-    FilePond.create(
-        document.querySelector('input[type="file"]'),
-    );
+    // Filepond item
     FilePond.setOptions({
         server: {
             process: {
-                url: '{{url('/')}}/filepond/process',
+                url: '{{url('/panel')}}/filepond/process',
                 method: 'POST',
                 withCredentials: false,
                 headers: {
@@ -32,7 +30,7 @@
                 ondata: null,
             },
             revert: {
-                url: '{{url('/')}}/filepond/revert',
+                url: '{{url('/panel')}}/filepond/revert',
                 method: 'DELETE',
                 withCredentials: false,
                 headers: {
@@ -44,13 +42,13 @@
                 ondata: null,
             },
             load: {
-                url: '{{url('/')}}/filepond/load?file=',
+                url: '{{url('/panel')}}/filepond/load?file=',
                 method: 'GET',
                 withCredentials: false,
                 timeout: 7000,
             },
             remove: (source, load) => {
-                axios.post('{{url('/')}}/filepond/remove', {
+                axios.post('{{url('/panel')}}/filepond/remove', {
                     file: source
                 })
                     .then(function (response) {
@@ -62,22 +60,4 @@
             }
         },
     });
-    @if(isset(session('files')[0]))
-    FilePond.setOptions({
-        filePosterHeight: 256,
-        files: [
-                @foreach(session('files') as $sessionFile)
-            {
-                source: '{{$sessionFile}}',
-                options: {
-                    type: 'local',
-                    metadata: {
-                        poster: '{{url('/')}}/storage/{{$sessionFile}}'
-                    }
-                }
-            },
-            @endforeach
-        ]
-    });
-    @endif
 </script>

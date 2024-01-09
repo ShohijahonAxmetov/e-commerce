@@ -10,55 +10,69 @@
         <!-- Form -->
         <form action="{{route($route.'.store')}}" method="post" class="mb-4">
             @csrf
-            <!-- Team name -->
-            <div class="form-group">
 
-                <!-- Label -->
-                <label class="form-label">
-                    Название
-                </label>
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                @foreach($LANGS as $lang)
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {{$loop->first ? 'active' : ''}}" id="{{$lang['code']}}-tab" data-bs-toggle="tab" data-bs-target="#{{$lang['code']}}-tab-pane" type="button" role="tab" aria-controls="{{$lang['code']}}-tab-pane" aria-selected="{{$loop->first ? 'true' : 'false'}}">{{$lang['name']}}</button>
+                </li>
+                @endforeach
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                @foreach($LANGS as $lang)
+                <div class="tab-pane fade pt-4 {{$loop->first ? 'show active' : ''}}" id="{{$lang['code']}}-tab-pane" role="tabpanel" aria-labelledby="{{$lang['code']}}-tab" tabindex="0">
+                    <!-- Name -->
+                    <div class="form-group">
 
-                <!-- Input -->
-                <input name="name" type="text" class="form-control">
-                @error('name')
-                <div class="text-danger mt-2">{{ $message }}</div>
-                @enderror
-            </div>
+                        <!-- Label -->
+                        <label class="form-label @if($loop->first) required @endif">
+                            Название ({{$lang['code']}})
+                        </label>
 
-            <!-- Team description -->
-            <div class="form-group">
+                        <!-- Input -->
+                        <input name="name[{{$lang['code']}}]" value="{{old('name.'.$lang['code'])}}" @if($loop->first) required @endif type="text" class="form-control">
+                        @error('name.'.$lang['code'])
+                        <div class="text-danger mt-2">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-                <!-- Label -->
-                <label class="form-label mb-1">
-                    Описание
-                </label>
+                    <!-- Description -->
+                    <div class="form-group">
 
-                <!-- Text -->
-{{--                <small class="form-text text-muted">--}}
-{{--                    This is how others will learn about the project, so make it good!--}}
-{{--                </small>--}}
+                        <!-- Label -->
+                        <label class="form-label mb-1">
+                            Описание ({{$lang['code']}})
+                        </label>
 
-                <!-- Textarea -->
-                <textarea name="desc" type="textarea" hidden>{!!old('desc')!!}</textarea>
-                <div class="quill">
-                    {!!old('desc')!!}
+                        <!-- Text -->
+                        {{--                <small class="form-text text-muted">--}}
+                        {{--                    This is how others will learn about the project, so make it good!--}}
+                        {{--                </small>--}}
+
+                        <!-- Textarea -->
+                        <textarea name="desc[{{$lang['code']}}]" type="textarea" hidden>{!!old('desc.'.$lang['code'])!!}</textarea>
+                        <div class="quill{{$lang['code']}}">
+                            {!!old('desc.'.$lang['code'])!!}
+                        </div>
+                        @error('desc.'.$lang['code'])
+                        <div class="text-danger mt-2">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
-                @error('desc')
-                <div class="text-danger mt-2">{{ $message }}</div>
-                @enderror
+                @endforeach
             </div>
 
-            <!-- Team members -->
+            <!-- Parent category -->
             <div class="form-group">
 
                 <!-- Label -->
                 <label class="form-label">
-                    Add team members
+                    Родительская категория
                 </label>
 
                 <!-- Select -->
                 <select name="parent_id" class="form-select" data-choices>
-                    <option value=""></option>
+                    <option value="">Главная категория</option>
                     @foreach($categories as $category)
                     <option value="{{$category->id}}" {{old('parent_id') == $category->id ? 'selected': ''}}>{{$category->name}}</option>
                     @endforeach
@@ -75,7 +89,7 @@
             <hr class="mt-5 mb-5">
 
             <!-- Buttons -->
-            <button class="btn w-100 btn-primary">
+            <button class="btn w-100 btn-success">
                 Сохранить
             </button>
             <a href="{{route($route.'.index')}}" class="btn w-100 btn-link text-muted mt-2">
@@ -90,7 +104,8 @@
 
     <!-- Initialize Quill editor -->
     <script>
-        var quill = new Quill('.quill', {
+        @foreach($LANGS as $lang)
+        let quill{{$lang['code']}} = new Quill('.quill{{$lang['code']}}', {
             modules: {
                 toolbar: [
                     ['bold', 'italic'],
@@ -108,10 +123,11 @@
             theme: 'snow',
         });
 
-        quill.on('text-change', () => {
-            let textArea = document.querySelector('[name="desc"]');
-            textArea.value = document.querySelector('.ql-editor').innerHTML;
+        quill{{$lang['code']}}.on('text-change', () => {
+            let textArea = document.querySelector('[name="desc[{{$lang['code']}}]"]');
+            textArea.value = document.querySelector('.quill{{$lang['code']}} .ql-editor').innerHTML;
         });
+        @endforeach
     </script>
 
 @endsection

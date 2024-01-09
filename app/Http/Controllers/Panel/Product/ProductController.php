@@ -63,8 +63,6 @@ class ProductController extends Controller
             'desc' => 'nullable',
         ]);
 
-        dd($request->all());
-
         Product::create($request->all());
 
         return redirect()->route($this->route.'.index')->withInput()->with(['message' => 'Successfully saved']);

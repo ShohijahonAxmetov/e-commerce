@@ -102,7 +102,7 @@ class CategoryController extends Controller
             'parent_id' => ['nullable', 'integer', 'exists:categories,id']
         ]);
 
-        ${$this->route}->update($request->all());
+        ${$this->routeItem}->update($request->all());
 
         return redirect()->route($this->route.'.index')->withInput()->with(['message' => 'Successfully saved']);
     }

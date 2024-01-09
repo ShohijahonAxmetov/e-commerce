@@ -95,6 +95,16 @@
         }
     </style>
 
+    <!-- Required icon -->
+    <style>
+        .required:after {
+            position: absolute;
+            content: '*';
+            color: red;
+            margin-left: 2px;
+        }
+    </style>
+
     @include('panel.components.filepond.styles')
 
     <!-- Title -->
@@ -2229,13 +2239,12 @@
             "y": "top"
         }
     };
-    var notyf = new Notyf(options);
+    let notyf = new Notyf(options);
 
     @if($errors->has('message'))
     // Display an error notification
     notyf.error('{{$errors->first('message')}}');
     @endif
-
 
     @if(session('message'))
     // Display a success notification

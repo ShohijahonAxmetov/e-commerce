@@ -5,29 +5,35 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
+use App\Traits\FilePondTrait;
 
 class FilePondController extends Controller
 {
+    use FilePondTrait;
     public function process(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'file' => 'required|array',
-            'file.*' => 'required|file|max:5120'
+            'variations.*.files' => 'required|array',
+            'variations.*.files.*' => 'required|file|max:5120'
         ]);
         if ($validator->fails()) {
             return response($validator->errors(), 500);
         }
 
-        $file = $request->file('file.0');
-        $tmpFolder = 'tmp';
+        $itemKey = array_keys($request->file('variations'))[0];
+        $file = array_values($request->file('variations'))[0]['files'][0];
 
-        $fileName = $file->store($tmpFolder);
+        $fileName = $this->filePondProcess($file);
 
-        if (!isset(session('files')[0])) {
-            $sessionFiles[0] = $fileName;
+        if (!session()->has('files')) {
+            $sessionFiles['variations'][$itemKey][0] = $fileName;
         } else {
             $sessionFiles = session('files');
-            $sessionFiles[] = $fileName;
+            if (!isset(session('files')['variations'][$itemKey][0])) {
+                $sessionFiles['variations'][$itemKey][0] = $fileName;
+            } else {
+                $sessionFiles['variations'][$itemKey][] = $fileName;
+            }
         }
         session(['files' => $sessionFiles]);
 
@@ -37,13 +43,19 @@ class FilePondController extends Controller
     public function revert(Request $request)
     {
         $file = $request->getContent();
-        unlink(public_path('storage/'.$file));
+
+        $this->filePondRevert($file);
 
         $sessionFiles = session('files');
-        foreach ($sessionFiles as $key => $sessionFile) {
-            if ($sessionFile == $file) unset($sessionFiles[$key]);
+        foreach ($sessionFiles['variations'] as $variationKey => $variation) {
+            foreach ($variation as $key => $sessionFile) {
+                if ($sessionFile == $file) {
+                    unset($sessionFiles['variations'][$variationKey][$key]);
+                    $sessionFiles['variations'][$variationKey] = array_values($sessionFiles['variations'][$variationKey]);
+                }
+            }
         }
-        session(['files' => array_values($sessionFiles)]);
+        session(['files' => $sessionFiles]);
 
         return '';
     }
@@ -74,13 +86,18 @@ class FilePondController extends Controller
 
         $file = $request->input('file');
 
-        unlink(public_path('storage/'.$file));
+        $this->filePondRemove($file);
 
         $sessionFiles = session('files');
-        foreach ($sessionFiles as $key => $sessionFile) {
-            if ($sessionFile == $file) unset($sessionFiles[$key]);
+        foreach ($sessionFiles['variations'] as $variationKey => $variation) {
+            foreach ($variation as $key => $sessionFile) {
+                if ($sessionFile == $file) {
+                    unset($sessionFiles['variations'][$variationKey][$key]);
+                    $sessionFiles['variations'][$variationKey] = array_values($sessionFiles['variations'][$variationKey]);
+                }
+            }
         }
-        session(['files' => array_values($sessionFiles)]);
+        session(['files' => $sessionFiles]);
 
         return '';
     }
