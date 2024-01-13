@@ -36,7 +36,7 @@
                             </label>
 
                             <!-- Input -->
-                            <input name="name[{{$lang['code']}}]" value="{{old('name.'.$lang['code'])}}" @if($loop->first) required @endif type="text" class="form-control">
+                            <input name="name[{{$lang['code']}}]" value="{{old('name.'.$lang['code'])}}"  type="text" class="form-control">
                             @error('name.'.$lang['code'])
                             <div class="text-danger mt-2">{{ $message }}</div>
                             @enderror
@@ -139,8 +139,8 @@
                                     </label>
 
                                     <!-- Input -->
-                                    <input name="variations[{{$item}}][name][{{$lang['code']}}]" @if($loop->first) required @endif type="text" class="form-control">
-                                    @error('variations.'.$item.'.name')
+                                    <input name="variations[{{$item}}][name][{{$lang['code']}}]" value="{{old('variations.'.$item.'name.'.$lang['code'])}}" type="text" class="form-control">
+                                    @error('variations.'.$item.'.name.'.$lang['code'])
                                     <div class="text-danger mt-2">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -159,11 +159,11 @@
                                     {{--                </small>--}}
 
                                     <!-- Textarea -->
-                                    <textarea name="variations[{{$item}}][desc][{{$lang['code']}}]" type="textarea" hidden>{!!old('variations.'.$item.'.desc')!!}</textarea>
+                                    <textarea name="variations[{{$item}}][desc][{{$lang['code']}}]" type="textarea" hidden>{!!old('variations.'.$item.'.desc.'.$lang['code'])!!}</textarea>
                                     <div class="quill{{$item}}{{$lang['code']}}">
-                                        {!!old('variations.'.$item.'.desc')!!}
+                                        {!!old('variations.'.$item.'.desc.'.$lang['code'])!!}
                                     </div>
-                                    @error('variations.'.$item.'.desc')
+                                    @error('variations.'.$item.'.desc.'.$lang['code'])
                                     <div class="text-danger mt-2">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -179,7 +179,7 @@
                         </label>
 
                         <!-- Input -->
-                        <input name="variations[{{$item}}][price]" type="text" class="form-control">
+                        <input name="variations[{{$item}}][price]" value="{{old('variations.'.$item.'.price.'.$lang['code'])}}" type="text" class="form-control">
                         @error('variations.'.$item.'.price')
                         <div class="text-danger mt-2">{{ $message }}</div>
                         @enderror

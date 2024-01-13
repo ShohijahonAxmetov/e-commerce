@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product\Product;
+use App\Models\Product\ProductVariation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -60,10 +62,39 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required',
+            'name.'.$this->getMainLang() => 'required',
             'desc' => 'nullable',
+            'category_id' => 'nullable|integer|exists:categories,id',
+            'brand_id' => 'nullable|integer|exists:brands,id',
+            'variations' => 'array',
+            'variations.*.name' => 'required',
         ]);
 
-        Product::create($request->all());
+//        dd($request->all());
+
+        DB::beginTransaction();
+        try {
+            $product = Product::create($request->all());
+
+            foreach ($request->input('variations') as $variation) {
+                $variationData = $variation;
+                $variationData['product_id'] = $product->id;
+
+                $variationModel = ProductVariation::create($variationData);
+
+                if (isset($variation['files'][0])) {
+                    foreach ($variation['files'] as $file) {
+                        Storage::move($file, 'products/'.$this->tmpToPath($file));
+                    }
+                }
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return back()->withInput()->withErrors();
+        }
 
         return redirect()->route($this->route.'.index')->withInput()->with(['message' => 'Successfully saved']);
     }
@@ -107,6 +138,11 @@ class ProductController extends Controller
     {
         DB::beginTransaction();
         try {
+            foreach (${$this->routeItem}->variations as $variation) {
+//                $variation->images()->delete();
+
+                $variation->delete();
+            }
             ${$this->routeItem}->delete();
 
             DB::commit();

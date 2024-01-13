@@ -18,6 +18,6 @@ Route::get('/', function () {
 });
 
 Route::get('get-session', function () {
-//    session()->forget('files');
+    session()->forget('files');
     return response(session('files'));
 });

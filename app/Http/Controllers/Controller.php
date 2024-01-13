@@ -9,4 +9,18 @@ use Illuminate\Routing\Controller as BaseController;
 class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
+
+    public function tmpToPath($tmp): ?string
+    {
+        if (!$tmp) return $tmp;
+
+        $exploded = explode('/', $tmp);
+
+        return $exploded[1];
+    }
+
+    public function getMainLang(): string
+    {
+        return 'ru';
+    }
 }
