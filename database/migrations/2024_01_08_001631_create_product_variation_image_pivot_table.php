@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('product_variation_id')->constrained('product_variations');
             $table->foreignId('product_variation_image_id')->constrained('product_variation_images');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

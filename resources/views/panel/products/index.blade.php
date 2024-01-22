@@ -1,3 +1,13 @@
+@php
+    function pasteProductImg(\App\Models\Product\Product $product)
+    {
+        $defaultImgPath = '';
+        foreach ($product->variations as $variation) {
+            if (isset($variation->images[0])) return '/storage/'.$variation->images[0]->path;
+        }
+        return $defaultImgPath;
+    }
+@endphp
 @extends('panel.layouts.main')
 @section('title', $title)
 
@@ -188,6 +198,9 @@
                                 <th>
                                     <a class="list-sort text-muted" data-sort="item-name" href="#">Название</a>
                                 </th>
+                                <th>
+                                    <a class="list-sort text-muted" data-sort="item-name" href="#">Дата добавления</a>
+                                </th>
                                 <th></th>
                             </tr>
                             </thead>
@@ -196,14 +209,15 @@
                             <tr>
                                 <td>{{${$route}->firstItem() + $key}}</td>
                                 <td>
-
                                     <!-- Avatar -->
                                     <div class="avatar avatar-xs align-middle me-2">
-                                        <img class="avatar-img rounded-circle"
-                                             src="/assets/img/avatars/profiles/avatar-1.jpg" alt="...">
+                                        <img class="avatar-img"
+                                             src="{{pasteProductImg(${$routeItem})}}">
                                     </div>
-                                    <a class="item-name text-reset" href="profile-posts.html">{{${$routeItem}->name}}</a>
-
+                                    <a class="item-name text-reset" href="{{route($route.'.edit', [$routeItem => ${$routeItem}])}}">{{${$routeItem}->name}}</a>
+                                </td>
+                                <td>
+                                    {{date('d-m-Y H:i', strtotime(${$routeItem}->created_at))}}
                                 </td>
                                 <td class="text-end">
 

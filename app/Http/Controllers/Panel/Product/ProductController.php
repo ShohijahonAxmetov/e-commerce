@@ -7,6 +7,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product\Product;
 use App\Models\Product\ProductVariation;
+use App\Models\Product\ProductVariationImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -22,6 +23,7 @@ class ProductController extends Controller
     public function index()
     {
         ${$this->route} = Product::orderBy('name->ru')
+            ->with('variations.images')
             ->paginate(20);
 
         return view('panel.'.$this->route.'.index', [
@@ -60,6 +62,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+//        dd($request->all());
         $request->validate([
             'name' => 'required',
             'name.'.$this->getMainLang() => 'required',
@@ -67,10 +70,8 @@ class ProductController extends Controller
             'category_id' => 'nullable|integer|exists:categories,id',
             'brand_id' => 'nullable|integer|exists:brands,id',
             'variations' => 'array',
-            'variations.*.name' => 'required',
+            'variations.*.name.'.$this->getMainLang() => 'required',
         ]);
-
-//        dd($request->all());
 
         DB::beginTransaction();
         try {
@@ -85,6 +86,12 @@ class ProductController extends Controller
                 if (isset($variation['files'][0])) {
                     foreach ($variation['files'] as $file) {
                         Storage::move($file, 'products/'.$this->tmpToPath($file));
+
+                        $productVariationImage = ProductVariationImage::create([
+                            'path' => 'products/'.$this->tmpToPath($file)
+                        ]);
+
+                        $variationModel->images()->attach($productVariationImage->id);
                     }
                 }
             }
@@ -95,6 +102,13 @@ class ProductController extends Controller
 
             return back()->withInput()->withErrors();
         }
+
+        /*
+         * delete variations data form session
+         */
+        $sessionData = session('files');
+        unset($sessionData['variations']);
+        session(['files' => $sessionData]);
 
         return redirect()->route($this->route.'.index')->withInput()->with(['message' => 'Successfully saved']);
     }
@@ -139,8 +153,7 @@ class ProductController extends Controller
         DB::beginTransaction();
         try {
             foreach (${$this->routeItem}->variations as $variation) {
-//                $variation->images()->delete();
-
+                $variation->images()->delete();
                 $variation->delete();
             }
             ${$this->routeItem}->delete();

@@ -97,12 +97,29 @@
 
     <!-- Required icon -->
     <style>
+        {{-- Required icon --}}
         .required:after {
             position: absolute;
             content: '*';
             color: red;
             margin-left: 2px;
         }
+
+        {{-- Variation delete --}}
+        .delete_variation__icon {
+            position: absolute;
+            right: 0.5rem;
+            top: 0.2rem;
+            width: 40px;
+            height: 40px;
+            color: red;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
     </style>
 
     @include('panel.components.filepond.styles')
