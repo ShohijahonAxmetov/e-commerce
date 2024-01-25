@@ -2,6 +2,7 @@
 
 namespace App\Models\Attribute;
 
+use App\Models\Category;
 use App\Models\Product\ProductVariation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,5 +32,10 @@ class Attribute extends Model
     public function productVariations(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(ProductVariation::class)->withPivot('option');;
+    }
+
+    public function categories(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Category::class);
     }
 }

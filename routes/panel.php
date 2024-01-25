@@ -25,8 +25,8 @@ Route::group(['middleware' => 'admin_auth'], function () {
     Route::resource('brands', \App\Http\Controllers\Panel\BrandController::class);
     Route::resource('characteristics', \App\Http\Controllers\CharacteristicController::class);
     Route::resource('characteristic_groups', \App\Http\Controllers\CharacteristicGroupController::class);
-    Route::resource('attributes', \App\Http\Controllers\AttributeController::class);
-    Route::resource('attribute_groups', \App\Http\Controllers\AttributeGroupController::class);
+    Route::resource('attributes', \App\Http\Controllers\Panel\Attribute\AttributeController::class);
+    Route::resource('attribute_groups', \App\Http\Controllers\Panel\Attribute\AttributeGroupController::class);
 
     Route::group(['prefix' => 'files'], function () {
         Route::post('upload', [\App\Http\Controllers\FileController::class, 'upload'])->name('files.upload');

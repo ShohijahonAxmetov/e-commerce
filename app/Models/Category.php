@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Attribute\Attribute;
+use App\Models\Attribute\AttributeGroup;
 use App\Models\Product\Product;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -42,5 +44,15 @@ class Category extends Model
     public function children(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Category::class, 'parent_id');
+    }
+
+    public function attributeGroups(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(AttributeGroup::class);
+    }
+
+    public function attributes(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Attribute::class);
     }
 }

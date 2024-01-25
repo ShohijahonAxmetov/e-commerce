@@ -2,6 +2,7 @@
 
 namespace App\Models\Attribute;
 
+use App\Models\Category;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Translatable\HasTranslations;
@@ -24,5 +25,10 @@ class AttributeGroup extends Model
     public function attributes(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Attribute::class);
+    }
+
+    public function categories(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Category::class);
     }
 }
