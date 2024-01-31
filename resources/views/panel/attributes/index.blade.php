@@ -188,6 +188,9 @@
                                 <th>
                                     <a class="list-sort text-muted" data-sort="item-name" href="#">Название</a>
                                 </th>
+                                <th>
+                                    <a class="list-sort text-muted" data-sort="item-name" href="#">Категории</a>
+                                </th>
                                 <th></th>
                             </tr>
                             </thead>
@@ -204,6 +207,19 @@
                                         </div>
                                         <a class="item-name text-reset" href="profile-posts.html">{{${$routeItem}->name}}</a>
 
+                                    </td>
+                                    <td>
+                                        @if (!isset(${$routeItem}->categories[0]))
+                                            -
+                                        @else
+                                            @foreach(${$routeItem}->categories as $category)
+                                                @if ($loop->last)
+                                                    {{$category->name}}
+                                                @else
+                                                    {{$category->name.', '}}
+                                                @endif
+                                            @endforeach
+                                        @endif
                                     </td>
                                     <td class="text-end">
 

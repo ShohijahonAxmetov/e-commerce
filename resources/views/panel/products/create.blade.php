@@ -112,6 +112,26 @@
                 @enderror
             </div>
 
+            <!-- Category -->
+            <div class="form-group">
+
+                <!-- Label -->
+                <label class="form-label">
+                    Атрибуты
+                </label>
+
+                <!-- Select -->
+                <select name="main_attributes[]" class="form-select" data-choices='{"removeItemButton": true}' multiple>
+                    <option value="">Без атрибутов</option>
+                    @foreach($attributes as $item)
+                        <option value="{{$item->id}}" {{in_array($item->id, old('main_attributes', [])) ? 'selected': ''}}>{{$item->name}}</option>
+                    @endforeach
+                </select>
+                @error('parent_id')
+                <div class="text-danger mt-2">{{ $message }}</div>
+                @enderror
+            </div>
+
             <!-- Divider -->
 {{--            <hr class="mt-4 mb-5">--}}
 
@@ -127,6 +147,20 @@
                 @if(!empty(session()->getOldInput()))
                     @foreach(old('variations') as $itemKey => $item)
                         <div class="card card-body mb-3" data-id="{{$itemKey}}">
+                            <div class="row attributesBlock">
+                                @if(isset(old('attributes')[$itemKey]))
+                                @foreach(old('attributes')[$itemKey] as $attributeKey => $attribute)
+                                    <div class="form-group col-3">
+                                        <label class="form-label">{{\App\Models\Attribute\Attribute::find($attributeKey)->name}}</label>
+                                        <select name="attributes[{{$itemKey}}][{{$attributeKey}}]" class="form-select" data-choices>
+                                            <option value="1" {{$attribute == 1 ? 'selected' : ''}}>1</option>
+                                            <option value="2" {{$attribute == 2 ? 'selected' : ''}}>2</option>
+                                            <option value="3" {{$attribute == 3 ? 'selected' : ''}}>3</option>
+                                        </select>
+                                    </div>
+                                @endforeach
+                                @endif
+                            </div>
                             <span data-variation-delete-btn-id="{{$itemKey}}" class="fe fe-x delete_variation__icon"></span>
                             <ul class="nav nav-tabs" id="myTab" role="tablist">
                                 @foreach($LANGS as $lang)
@@ -206,6 +240,7 @@
                 @else
                     @foreach([0] as $item)
                         <div class="card card-body mb-3" data-id="{{$item}}">
+                            <div class="row attributesBlock"></div>
                             <span data-variation-delete-btn-id="{{$item}}" class="fe fe-x delete_variation__icon"></span>
                             <ul class="nav nav-tabs" id="myTab" role="tablist">
                                 @foreach($LANGS as $lang)
@@ -302,6 +337,52 @@
 
         </form>
     </div>
+
+    <script>
+        // document.addEventListener("DOMContentLoaded", function () {
+            const attributeSelect = document.querySelector('[name="main_attributes[]"]');
+            // const attributesChoice = new Choices(attributeSelect, {
+            //     removeItemButton: true,
+            //     classNames: {
+            //         containerInner: "form-select",
+            //         input: "form-control",
+            //         inputCloned: "form-control-sm",
+            //         listDropdown: "dropdown-menu",
+            //         itemChoice: "dropdown-item",
+            //         activeState: "show",
+            //         selectedState: "active"
+            //     },
+            // });
+            attributeSelect.addEventListener('addItem', (option) => {
+                const variationsBlock = document.getElementById('variationsBlock');
+                let list = variationsBlock.children;
+                for (let child of list) {
+                    let innerChild = child.querySelector('.attributesBlock');
+                    if (!innerChild.querySelector('[name="attributes[' + child.getAttribute('data-id') + '][' + option.detail.value + ']"]')) {
+                        innerChild.insertAdjacentHTML('beforeend', '<div class="form-group col-3">' +
+                            '<label class="form-label">' + option.detail.label + '</label>' +
+                            '<select name="attributes[' + child.getAttribute('data-id') + '][' + option.detail.value + ']" class="form-select" data-choices>' +
+                            '<option value="1">1</option>' +
+                            '<option value="2">2</option>' +
+                            '<option value="3">3</option>' +
+                            '</select>' +
+                            '</div>');
+                    }
+                }
+            });
+            attributeSelect.addEventListener('removeItem', (option) => {
+                const variationsBlock = document.getElementById('variationsBlock');
+                let list = variationsBlock.children;
+                for (let child of list) {
+                    let innerChild = child.querySelector('.attributesBlock');
+                    innerChild.children.forEach((childOption) => {
+                        let childOptionSelect = childOption.querySelector('[name="attributes[' + child.getAttribute('data-id') + '][' + option.detail.value + ']"]');
+                        if (childOptionSelect) childOption.remove();
+                    });
+                }
+            });
+        // });
+    </script>
 
 
     <!-- FilePond -->
@@ -412,7 +493,20 @@
     <!-- ADD VARIATIONS -->
     <script>
         function getVariationElements(dataId) {
+            const mainAttributesSelect = document.querySelector('[name="main_attributes[]"]');
+            let attributes = '';
+            mainAttributesSelect.options.forEach((option) => {
+                attributes = attributes + '<div class="form-group col-3">' +
+                    '<label class="form-label">' + option.text + '</label>' +
+                    '<select name="attributes[' + dataId + '][' + option.value + ']" class="form-select" data-choices>' +
+                    '<option value="1">1</option>' +
+                    '<option value="2">2</option>' +
+                    '<option value="3">3</option>' +
+                    '</select>' +
+                    '</div>';
+            });
             return '<div class="card card-body mb-3" data-id="' + dataId + '">' +
+                '<div class="row attributesBlock">' + attributes + '</div>' +
                 '<span data-variation-delete-btn-id="' + dataId + '" class="fe fe-x delete_variation__icon"></span>' +
                 '<ul class="nav nav-tabs" id="myTab" role="tablist">' +
                 '@foreach($LANGS as $lang)' +

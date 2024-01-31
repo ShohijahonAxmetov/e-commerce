@@ -1631,6 +1631,8 @@
 
 <!-- Theme JS -->
 <script src="/assets/js/theme.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/scripts/choices.min.js"></script>
+
 
 <!-- Notyf JS -->
 <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>

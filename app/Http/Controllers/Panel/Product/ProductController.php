@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Panel\Product;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attribute\Attribute;
+use App\Models\Attribute\AttributeGroup;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product\Product;
@@ -45,6 +47,10 @@ class ProductController extends Controller
             ->get();
         $brands = Brand::orderBy('name->ru')
             ->get();
+        $attributes = Attribute::orderBy('name->ru')
+            ->get();
+        $attributeGroups = AttributeGroup::orderBy('name->ru')
+            ->get();
 
         return view('panel.'.$this->route.'.create', [
             'title' => $this->title,
@@ -54,6 +60,8 @@ class ProductController extends Controller
 
             'categories' => $categories,
             'brands' => $brands,
+            'attributes' => $attributes,
+            'attributeGroups' => $attributeGroups,
         ]);
     }
 
