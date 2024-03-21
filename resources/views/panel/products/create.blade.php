@@ -127,7 +127,7 @@
                         <option value="{{$item->id}}" {{in_array($item->id, old('main_attributes', [])) ? 'selected': ''}}>{{$item->name}}</option>
                     @endforeach
                 </select>
-                @error('parent_id')
+                @error('main_attributes')
                 <div class="text-danger mt-2">{{ $message }}</div>
                 @enderror
             </div>
@@ -354,6 +354,7 @@
             //     },
             // });
             attributeSelect.addEventListener('addItem', (option) => {
+                console.log(option)
                 const variationsBlock = document.getElementById('variationsBlock');
                 let list = variationsBlock.children;
                 for (let child of list) {

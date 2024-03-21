@@ -48,6 +48,7 @@ class ProductController extends Controller
         $brands = Brand::orderBy('name->ru')
             ->get();
         $attributes = Attribute::orderBy('name->ru')
+            ->with('options')
             ->get();
         $attributeGroups = AttributeGroup::orderBy('name->ru')
             ->get();

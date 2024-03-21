@@ -65,6 +65,23 @@
                 @enderror
             </div>
 
+            <!-- Options -->
+            <div class="form-group">
+
+                <!-- Label -->
+                <label class="form-label">
+                    Опции
+                </label>
+
+                <!-- Select -->
+                <select name="options[]" class="form-select" data-choices='{"addItems": true, "addItemFilter": null}' multiple>
+                    <option value=""></option>
+                </select>
+                @error('categories', 'categories.*')
+                <div class="text-danger mt-2">{{ $message }}</div>
+                @enderror
+            </div>
+
             <!-- Team description -->
             <div class="form-group">
 
