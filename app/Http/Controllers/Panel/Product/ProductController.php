@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Panel\Product;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Product\StoreRequest;
 use App\Models\Attribute\Attribute;
 use App\Models\Attribute\AttributeGroup;
 use App\Models\Brand;
@@ -24,7 +25,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-        ${$this->route} = Product::orderBy('name->ru')
+        ${$this->route} = Product::query()
+            ->orderBy('name->ru')
             ->with('variations.images')
             ->paginate(20);
 
@@ -43,14 +45,18 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $categories = Category::orderBy('name->ru')
+        $categories = Category::query()
+            ->orderBy('name->ru')
             ->get();
-        $brands = Brand::orderBy('name->ru')
+        $brands = Brand::query()
+            ->orderBy('name->ru')
             ->get();
-        $attributes = Attribute::orderBy('name->ru')
+        $attributes = Attribute::query()
+            ->orderBy('name->ru')
             ->with('options')
             ->get();
-        $attributeGroups = AttributeGroup::orderBy('name->ru')
+        $attributeGroups = AttributeGroup::query()
+            ->orderBy('name->ru')
             ->get();
 
         return view('panel.'.$this->route.'.create', [
@@ -69,36 +75,28 @@ class ProductController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreRequest $request): \Illuminate\Http\RedirectResponse
     {
-//        dd($request->all());
-        $request->validate([
-            'name' => 'required',
-            'name.'.$this->getMainLang() => 'required',
-            'desc' => 'nullable',
-            'category_id' => 'nullable|integer|exists:categories,id',
-            'brand_id' => 'nullable|integer|exists:brands,id',
-            'variations' => 'array',
-            'variations.*.name.'.$this->getMainLang() => 'required',
-        ]);
-
         DB::beginTransaction();
         try {
-            $product = Product::create($request->all());
+            $product = Product::query()
+                ->create($request->validated());
 
             foreach ($request->input('variations') as $variation) {
                 $variationData = $variation;
                 $variationData['product_id'] = $product->id;
 
-                $variationModel = ProductVariation::create($variationData);
+                $variationModel = ProductVariation::query()
+                    ->create($variationData);
 
                 if (isset($variation['files'][0])) {
                     foreach ($variation['files'] as $file) {
                         Storage::move($file, 'products/'.$this->tmpToPath($file));
 
-                        $productVariationImage = ProductVariationImage::create([
-                            'path' => 'products/'.$this->tmpToPath($file)
-                        ]);
+                        $productVariationImage = ProductVariationImage::query()
+                            ->create([
+                                'path' => 'products/'.$this->tmpToPath($file)
+                            ]);
 
                         $variationModel->images()->attach($productVariationImage->id);
                     }
@@ -108,6 +106,7 @@ class ProductController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
+            report($e);
 
             return back()->withInput()->withErrors();
         }
@@ -119,7 +118,10 @@ class ProductController extends Controller
         unset($sessionData['variations']);
         session(['files' => $sessionData]);
 
-        return redirect()->route($this->route.'.index')->withInput()->with(['message' => 'Successfully saved']);
+        return redirect()
+            ->route($this->route.'.index')
+            ->withInput()
+            ->with(['message' => 'Successfully saved']);
     }
 
     /**
@@ -151,7 +153,10 @@ class ProductController extends Controller
 
         ${$this->routeItem}->update($request->all());
 
-        return redirect()->route($this->route.'.index')->withInput()->with(['message' => 'Successfully saved']);
+        return redirect()
+            ->route($this->route.'.index')
+            ->withInput()
+            ->with(['message' => 'Successfully saved']);
     }
 
     /**
@@ -171,7 +176,9 @@ class ProductController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return back()->withErrors(['message' => $e->getMessage()])->with(['message' => 'Successfully deleted']);
+            return back()
+                ->withErrors(['message' => $e->getMessage()])
+                ->with(['message' => 'Successfully deleted']);
         }
 
         return back()->with(['message' => 'Successfully deleted']);

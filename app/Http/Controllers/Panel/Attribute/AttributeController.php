@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Panel\Attribute;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Attribute\StoreRequest;
+use App\Http\Requests\Attribute\UpdateRequest;
 use App\Models\Attribute\Attribute;
 use App\Models\Attribute\AttributeGroup;
 use App\Models\Category;
+use App\Models\Product\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -19,7 +22,8 @@ class AttributeController extends Controller
      */
     public function index()
     {
-        ${$this->route} = Attribute::orderBy('name->ru')
+        ${$this->route} = Attribute::query()
+            ->orderBy('name->ru')
             ->paginate(20);
 
         return view('panel.'.$this->route.'.index', [
@@ -37,9 +41,11 @@ class AttributeController extends Controller
      */
     public function create()
     {
-        $categories = Category::orderBy('name->ru')
+        $categories = Category::query()
+            ->orderBy('name->ru')
             ->get();
-        $groups = AttributeGroup::orderBy('name->ru')
+        $groups = AttributeGroup::query()
+            ->orderBy('name->ru')
             ->get();
 
         return view('panel.'.$this->route.'.create', [
@@ -56,20 +62,11 @@ class AttributeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreRequest $request): \Illuminate\Http\RedirectResponse
     {
-        $request->validate([
-            'name' => 'required',
-            'desc' => 'nullable',
-            'categories' => 'array',
-            'categories.*' => 'integer',
-            'attribute_group_id' => 'nullable|integer',
-        ]);
-        $data = $request->all();
-
         DB::beginTransaction();
         try {
-            $attribute = Attribute::create($data);
+            $attribute = Attribute::query()->create($request->validated());
             $attribute->categories()->sync($request->input('categories'));
 
             DB::commit();
@@ -79,7 +76,10 @@ class AttributeController extends Controller
             return back()->withInput()->withErrors(['message' => $e->getMessage()]);
         }
 
-        return redirect()->route($this->route.'.index')->withInput()->with(['message' => 'Successfully saved']);
+        return redirect()
+            ->route($this->route.'.index')
+            ->withInput()
+            ->with(['message' => 'Successfully saved']);
     }
 
     /**
@@ -95,9 +95,11 @@ class AttributeController extends Controller
      */
     public function edit(Attribute $attribute)
     {
-        $categories = Category::orderBy('name->ru')
+        $categories = Category::query()
+            ->orderBy('name->ru')
             ->get();
-        $groups = AttributeGroup::orderBy('name->ru')
+        $groups = AttributeGroup::query()
+            ->orderBy('name->ru')
             ->get();
 
         return view('panel.'.$this->route.'.edit', [
@@ -116,19 +118,11 @@ class AttributeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Attribute $attribute)
+    public function update(UpdateRequest $request, Attribute $attribute): \Illuminate\Http\RedirectResponse
     {
-        $request->validate([
-            'name' => 'required',
-            'desc' => 'nullable',
-            'categories' => 'array',
-            'categories.*' => 'integer',
-            'attribute_group_id' => 'nullable|integer'
-        ]);
-
         DB::beginTransaction();
         try {
-            ${$this->routeItem}->update($request->all());
+            ${$this->routeItem}->update($request->validated());
             ${$this->routeItem}->categories()->sync($request->input('categories'));
 
             DB::commit();
@@ -138,7 +132,10 @@ class AttributeController extends Controller
             return back()->withInput()->withErrors(['message' => $e->getMessage()]);
         }
 
-        return redirect()->route($this->route.'.index')->withInput()->with(['message' => 'Successfully saved']);
+        return redirect()
+            ->route($this->route.'.index')
+            ->withInput()
+            ->with(['message' => 'Successfully saved']);
     }
 
     /**
